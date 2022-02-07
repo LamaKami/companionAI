@@ -1,0 +1,6 @@
+#!/bin/bash
+
+swag init
+docker kill $(docker ps -q);
+docker build -t companion_ai --build-arg value=$(pwd) .
+docker run -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd):/companionAI/mnt -u ${UID} -d -p 8080:8080 companion_ai

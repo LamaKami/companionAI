@@ -1,0 +1,5 @@
+n_iter: 10
+drop: 0.5
+trainingsData: /mnt/data/trainingsData.json
+modelLanguage: en
+currentVersion: v1

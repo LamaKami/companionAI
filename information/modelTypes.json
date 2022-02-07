@@ -1,0 +1,6 @@
+{
+  "modelTypes": [
+    {"name": "entity-extraction", "description": "this is the description for the entity extraction model"},
+    {"name": "svm", "description": "this is not implemented yet"}
+  ]
+}
