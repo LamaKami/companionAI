@@ -17,8 +17,8 @@ def load_data(path):
 
     data = []
 
-    for key in trainings_data.keys():
-        data.append((key, {'entities': [tuple(x) for x in trainings_data[key]]}))
+    for element in trainings_data["dataPoints"]:
+        data.append((element["sentence"],{'entities': [(x["start"], x["end"], x["type"]) for x in element["entities"]]}))
     return data
 
 
@@ -59,4 +59,4 @@ def train_model(train_data):
             yield "data: " + "iterations: " + str(itn+1) + "/" + str(n_iter) + " " + str(losses) + "\n"
 
     nlp.meta['name'] = 'companionAI-ner'
-    nlp.to_disk(Path().resolve() / f"model-{config['currentVersion']}")
+    nlp.to_disk(f"/mnt/model-{config['currentVersion']}")

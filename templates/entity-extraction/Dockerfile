@@ -9,5 +9,7 @@ RUN pip install --upgrade pip \
 
 WORKDIR /app
 COPY app.py ./app.py
+COPY train.py ./train.py
+COPY __init__.py ./__init__.py
 
 CMD ["python3", "-m" , "flask", "run", "--host=0.0.0.0"]

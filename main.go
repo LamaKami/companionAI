@@ -197,7 +197,7 @@ func RemoveModel(c *gin.Context) {
 }
 
 type EntityDataPoints struct {
-	EntityDataPoints []EntityDataPoint `json:"modelTypes"`
+	EntityDataPoints []EntityDataPoint `json:"dataPoints"`
 }
 
 type EntityDataPoint struct {
@@ -211,7 +211,7 @@ type EntityInformation struct {
 	EntityType       string `json:"type"`
 }
 
-func AddData(c *gin.Context) {
+func AddDataPoints(c *gin.Context) {
 	modelId := c.Param("modelId")
 
 	// TODO extract function for the model type config.json
@@ -229,7 +229,7 @@ func AddData(c *gin.Context) {
 	}
 
 	// TODO take correct trainings-data name from config.yml file
-	dataPath := dir + "/models/" + modelId + "/data/trainingsData.json"
+	dataPath := dir + "/mnt/models/" + modelId + "/data/trainingsData.json"
 
 	var savedData EntityDataPoints
 	if err := utils.Load(dataPath, &savedData); err != nil {
@@ -245,6 +245,15 @@ func AddData(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, "Data was saved")
+}
+
+func DeleteDatapoint(c *gin.Context) {
+
+}
+
+func GetDataPoints(c *gin.Context) {
+	// when model with text -> just return, maybe with pagination
+	// when images -> return path
 }
 
 func StartContainer(c *gin.Context) {
@@ -339,7 +348,9 @@ func main() {
 
 		dataGroup := v1.Group("/data")
 		{
-			dataGroup.POST("/:modelId", AddData)
+			dataGroup.POST("/:modelId", AddDataPoints)
+			dataGroup.GET("/:modelId", GetDataPoints)
+			dataGroup.DELETE("/:modelId", DeleteDatapoint)
 		}
 	}
 
