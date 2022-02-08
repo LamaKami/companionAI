@@ -114,6 +114,25 @@ func StopAll(containerTracker map[string]ContainerInformation) error {
 	return nil
 }
 
+func Stop(containerId string) error {
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return err
+	}
+
+	fmt.Print("Stopping container ", containerId, "... ")
+	var d time.Duration = -1
+	err = cli.ContainerStop(ctx, containerId, &d)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Success")
+
+	//TODO remove container id from global list
+	return nil
+}
+
 func GetContainerIp(containerId string) (string, error) {
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())

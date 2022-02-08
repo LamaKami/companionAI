@@ -228,7 +228,7 @@ func AddDataPoints(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	// TODO take correct trainings-data name from config.yml file
+	// TODO take correct trainings-data name from config.yml file in data
 	dataPath := dir + "/mnt/models/" + modelId + "/data/trainingsData.json"
 
 	var savedData EntityDataPoints
@@ -247,13 +247,15 @@ func AddDataPoints(c *gin.Context) {
 	c.JSON(http.StatusOK, "Data was saved")
 }
 
-func DeleteDatapoint(c *gin.Context) {
-
+func DeleteDataPoints(c *gin.Context) {
+	panic("Not yet implemented")
 }
 
 func GetDataPoints(c *gin.Context) {
 	// when model with text -> just return, maybe with pagination
 	// when images -> return path
+	panic("Not yet implemented")
+
 }
 
 func StartContainer(c *gin.Context) {
@@ -297,8 +299,81 @@ func StartContainer(c *gin.Context) {
 }
 
 func EndContainer(c *gin.Context) {
-	//version := c.Param("modelVersion")
-	//modelId := c.Param("modelId")
+	containerId := c.Param("containerId")
+	err := dockerManager.Stop(containerId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, fmt.Errorf("could not stop container %w", err))
+		return
+	}
+
+	c.JSON(http.StatusOK, "Successfully stopped container!")
+}
+
+func GetLabels(c *gin.Context) {
+	modelId := c.Param("modelId")
+	dir, err := os.Getwd()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	config, err := utils.LoadConfig(dir, modelId)
+
+	c.JSON(http.StatusOK, gin.H{"labels": config.Labels})
+}
+
+type LabelBody struct {
+	Labels []string `json:"labels"`
+}
+
+func AddLabels(c *gin.Context) {
+	modelId := c.Param("modelId")
+	dir, err := os.Getwd()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	var labels LabelBody
+	decoder := json.NewDecoder(c.Request.Body)
+	err = decoder.Decode(&labels)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	newLabels, err := utils.AddLabels(dir, modelId, labels.Labels)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"labels": newLabels})
+}
+
+func RemoveLabels(c *gin.Context) {
+	modelId := c.Param("modelId")
+	dir, err := os.Getwd()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	var labels LabelBody
+	decoder := json.NewDecoder(c.Request.Body)
+	err = decoder.Decode(&labels)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	newLabels, err := utils.RemoveLabels(dir, modelId, labels.Labels)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"labels": newLabels})
 }
 
 func StopAllContainer(c *gin.Context) {
@@ -334,7 +409,10 @@ func main() {
 			modelGroup.POST("/create", CreateNewModel)
 			modelGroup.DELETE("/:modelId", RemoveModel)
 			modelGroup.POST("/:modelId/:modelVersion/start", StartContainer)
-			modelGroup.PUT("/:modelId/:modelVersion/end", EndContainer)
+			modelGroup.PUT("/:containerId/end", EndContainer)
+			modelGroup.GET("/:modelId/labels", GetLabels)
+			modelGroup.POST("/:modelId/labels", AddLabels)
+			modelGroup.DELETE("/:modelId/labels", RemoveLabels)
 
 		}
 
@@ -350,7 +428,7 @@ func main() {
 		{
 			dataGroup.POST("/:modelId", AddDataPoints)
 			dataGroup.GET("/:modelId", GetDataPoints)
-			dataGroup.DELETE("/:modelId", DeleteDatapoint)
+			dataGroup.DELETE("/:modelId", DeleteDataPoints)
 		}
 	}
 
