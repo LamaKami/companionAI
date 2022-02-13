@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	"companionAI/helper"
 	"encoding/json"
 	"io"
 	"os"
@@ -114,4 +115,28 @@ func RemoveLabels(dir string, modelId string, labelsToRemove []string) ([]string
 	}
 
 	return config.Labels, nil
+}
+
+func GetModelTypes() (helper.ModelTypes, error) {
+	dir, err := os.Getwd()
+	if err != nil {
+		return helper.ModelTypes{}, err
+	}
+
+	var modelTypes helper.ModelTypes
+	err = Load(dir+"/mnt/information/modelTypes.json", &modelTypes)
+	if err != nil {
+		return helper.ModelTypes{}, err
+	}
+
+	return modelTypes, nil
+}
+
+func ModelTypeInTypes(types helper.ModelTypes, newModel helper.NewModel) bool {
+	for _, modelType := range types.ModelTypes {
+		if modelType.Name == newModel.Type {
+			return true
+		}
+	}
+	return false
 }

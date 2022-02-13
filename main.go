@@ -5,6 +5,7 @@ import (
 	"companionAI/docs"
 	"companionAI/helper"
 	"companionAI/utils"
+	"crypto/md5"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -101,7 +102,7 @@ func HandleRequest(c *gin.Context, requestMethod string, url string, payload io.
 }
 
 func CreateNewModel(c *gin.Context) {
-	types, err := helper.GetModelTypes()
+	types, err := utils.GetModelTypes()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -115,7 +116,7 @@ func CreateNewModel(c *gin.Context) {
 		return
 	}
 
-	validModelType := helper.ModelTypeInTypes(types, newModel)
+	validModelType := utils.ModelTypeInTypes(types, newModel)
 
 	if !validModelType {
 		c.JSON(http.StatusBadRequest, "This model type is currently not supported.")
@@ -166,7 +167,7 @@ func GetModels(c *gin.Context) {
 }
 
 func GetModelTypes(c *gin.Context) {
-	types, err := helper.GetModelTypes()
+	types, err := utils.GetModelTypes()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -196,31 +197,20 @@ func RemoveModel(c *gin.Context) {
 	c.JSON(http.StatusOK, "model was removed")
 }
 
-type EntityDataPoints struct {
-	EntityDataPoints []EntityDataPoint `json:"dataPoints"`
-}
-
-type EntityDataPoint struct {
-	Sentence string              `json:"sentence"`
-	Entities []EntityInformation `json:"entities"`
-}
-
-type EntityInformation struct {
-	StartingPosition int    `json:"start"`
-	EndingPosition   int    `json:"end"`
-	EntityType       string `json:"type"`
-}
-
 func AddDataPoints(c *gin.Context) {
 	modelId := c.Param("modelId")
 
 	// TODO extract function for the model type config.json
-	var dataPoints EntityDataPoints
+	var dataPoints helper.EntityDataPoints
 	decoder := json.NewDecoder(c.Request.Body)
 	err := decoder.Decode(&dataPoints)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
+	}
+
+	for i, value := range dataPoints.EntityDataPoints {
+		dataPoints.EntityDataPoints[i].Id = fmt.Sprintf("%x", md5.Sum([]byte(value.Sentence)))
 	}
 
 	dir, err := os.Getwd()
@@ -231,7 +221,7 @@ func AddDataPoints(c *gin.Context) {
 	// TODO take correct trainings-data name from config.yml file in data
 	dataPath := dir + "/mnt/models/" + modelId + "/data/trainingsData.json"
 
-	var savedData EntityDataPoints
+	var savedData helper.EntityDataPoints
 	if err := utils.Load(dataPath, &savedData); err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -247,15 +237,64 @@ func AddDataPoints(c *gin.Context) {
 	c.JSON(http.StatusOK, "Data was saved")
 }
 
+type IdBody struct {
+	Ids []string `json:"ids"`
+}
+
 func DeleteDataPoints(c *gin.Context) {
-	panic("Not yet implemented")
+	modelId := c.Param("modelId")
+	var ids IdBody
+	decoder := json.NewDecoder(c.Request.Body)
+	err := decoder.Decode(&ids)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	dir, err := os.Getwd()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	// TODO take correct trainings-data name from config.yml file in data
+	dataPath := dir + "/mnt/models/" + modelId + "/data/trainingsData.json"
+
+	var savedData helper.EntityDataPoints
+	if err := utils.Load(dataPath, &savedData); err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	savedData.EntityDataPoints = utils.RemoveElementsFromSlice(savedData.EntityDataPoints, ids.Ids)
+
+	err = utils.Save(dataPath, savedData)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, ids.Ids)
+
 }
 
 func GetDataPoints(c *gin.Context) {
-	// when model with text -> just return, maybe with pagination
-	// when images -> return path
-	panic("Not yet implemented")
+	modelId := c.Param("modelId")
 
+	dir, err := os.Getwd()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	// TODO take correct trainings-data name from config.yml file in data
+	dataPath := dir + "/mnt/models/" + modelId + "/data/trainingsData.json"
+
+	var savedData helper.EntityDataPoints
+	if err := utils.Load(dataPath, &savedData); err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, savedData)
 }
 
 func StartContainer(c *gin.Context) {
@@ -305,6 +344,8 @@ func EndContainer(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, fmt.Errorf("could not stop container %w", err))
 		return
 	}
+
+	delete(containerTracker, containerId)
 
 	c.JSON(http.StatusOK, "Successfully stopped container!")
 }
@@ -409,7 +450,7 @@ func main() {
 			modelGroup.POST("/create", CreateNewModel)
 			modelGroup.DELETE("/:modelId", RemoveModel)
 			modelGroup.POST("/:modelId/:modelVersion/start", StartContainer)
-			modelGroup.PUT("/:containerId/end", EndContainer)
+			modelGroup.PUT("/:containerId/stop", EndContainer)
 			modelGroup.GET("/:modelId/labels", GetLabels)
 			modelGroup.POST("/:modelId/labels", AddLabels)
 			modelGroup.DELETE("/:modelId/labels", RemoveLabels)

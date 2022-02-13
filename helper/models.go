@@ -1,10 +1,5 @@
 package helper
 
-import (
-	"companionAI/utils"
-	"os"
-)
-
 type ModelTypes struct {
 	ModelTypes []ModelType `json:"modelTypes"`
 }
@@ -19,26 +14,18 @@ type NewModel struct {
 	Type string
 }
 
-func GetModelTypes() (ModelTypes, error) {
-	dir, err := os.Getwd()
-	if err != nil {
-		return ModelTypes{}, err
-	}
-
-	var modelTypes ModelTypes
-	err = utils.Load(dir+"/mnt/information/modelTypes.json", &modelTypes)
-	if err != nil {
-		return ModelTypes{}, err
-	}
-
-	return modelTypes, nil
+type EntityDataPoints struct {
+	EntityDataPoints []EntityDataPoint `json:"dataPoints"`
 }
 
-func ModelTypeInTypes(types ModelTypes, newModel NewModel) bool {
-	for _, modelType := range types.ModelTypes {
-		if modelType.Name == newModel.Type {
-			return true
-		}
-	}
-	return false
+type EntityDataPoint struct {
+	Id       string              `json:"id"`
+	Sentence string              `json:"sentence"`
+	Entities []EntityInformation `json:"entities"`
+}
+
+type EntityInformation struct {
+	StartingPosition int    `json:"start"`
+	EndingPosition   int    `json:"end"`
+	EntityType       string `json:"type"`
 }
