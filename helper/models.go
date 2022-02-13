@@ -4,6 +4,18 @@ type ModelTypes struct {
 	ModelTypes []ModelType `json:"modelTypes"`
 }
 
+type ModelNames struct {
+	Names []string `json:"modelNames"`
+}
+
+type IdBody struct {
+	Ids []string `json:"ids"`
+}
+
+type LabelBody struct {
+	Labels []string `json:"labels"`
+}
+
 type ModelType struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`

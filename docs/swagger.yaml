@@ -1,7 +1,162 @@
 basePath: /api/v1
+definitions:
+  helper.EntityDataPoint:
+    properties:
+      entities:
+        items:
+          $ref: '#/definitions/helper.EntityInformation'
+        type: array
+      id:
+        type: string
+      sentence:
+        type: string
+    type: object
+  helper.EntityDataPoints:
+    properties:
+      dataPoints:
+        items:
+          $ref: '#/definitions/helper.EntityDataPoint'
+        type: array
+    type: object
+  helper.EntityInformation:
+    properties:
+      end:
+        type: integer
+      start:
+        type: integer
+      type:
+        type: string
+    type: object
+  helper.IdBody:
+    properties:
+      ids:
+        items:
+          type: string
+        type: array
+    type: object
+  helper.ModelNames:
+    properties:
+      modelNames:
+        items:
+          type: string
+        type: array
+    type: object
+  helper.ModelType:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+  helper.ModelTypes:
+    properties:
+      modelTypes:
+        items:
+          $ref: '#/definitions/helper.ModelType'
+        type: array
+    type: object
+  helper.NewModel:
+    properties:
+      name:
+        type: string
+      type:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
+  /data/{model-id}:
+    delete:
+      consumes:
+      - application/json
+      description: adds multiple data points to the trainings-data
+      parameters:
+      - description: unique id for models
+        in: path
+        name: modelId
+        required: true
+        type: string
+      - description: id can be ignored
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/helper.EntityDataPoints'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - data
+    post:
+      consumes:
+      - application/json
+      description: removes multiple data points from the trainings-data
+      parameters:
+      - description: unique id for models
+        in: path
+        name: modelId
+        required: true
+        type: string
+      - description: datapoints which should be removed
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/helper.IdBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - data
+  /model/{model-id}:
+    delete:
+      consumes:
+      - application/json
+      description: deletes a model and the trainings-data from the local file system
+      parameters:
+      - description: unique id for models
+        in: path
+        name: modelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - model
+  /model/create:
+    post:
+      consumes:
+      - application/json
+      description: creates a new folder with the necessary template files
+      parameters:
+      - description: body data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/helper.NewModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - model
   /model/predict/{modelId}/{modelVersion}:
     post:
       consumes:
@@ -25,4 +180,34 @@ paths:
           description: OK
           schema:
             type: string
+      tags:
+      - model
+  /models:
+    get:
+      consumes:
+      - application/json
+      description: creates a new folder with the necessary template files
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.ModelNames'
+      tags:
+      - models
+  /models/types:
+    get:
+      consumes:
+      - application/json
+      description: returns all available types for creating a new model
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.ModelTypes'
+      tags:
+      - models
 swagger: "2.0"

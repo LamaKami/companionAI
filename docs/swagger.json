@@ -5,6 +5,117 @@
     },
     "basePath": "/api/v1",
     "paths": {
+        "/data/{model-id}": {
+            "post": {
+                "description": "removes multiple data points from the trainings-data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "data"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "unique id for models",
+                        "name": "modelId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "datapoints which should be removed",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/helper.IdBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "adds multiple data points to the trainings-data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "data"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "unique id for models",
+                        "name": "modelId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "id can be ignored",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/helper.EntityDataPoints"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/model/create": {
+            "post": {
+                "description": "creates a new folder with the necessary template files",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "model"
+                ],
+                "parameters": [
+                    {
+                        "description": "body data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/helper.NewModel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/model/predict/{modelId}/{modelVersion}": {
             "post": {
                 "description": "generates prediction for the datapoint",
@@ -13,6 +124,9 @@
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "model"
                 ],
                 "parameters": [
                     {
@@ -37,6 +151,180 @@
                             "type": "string"
                         }
                     }
+                }
+            }
+        },
+        "/model/{model-id}": {
+            "delete": {
+                "description": "deletes a model and the trainings-data from the local file system",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "model"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "unique id for models",
+                        "name": "modelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/models": {
+            "get": {
+                "description": "creates a new folder with the necessary template files",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "models"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/helper.ModelNames"
+                        }
+                    }
+                }
+            }
+        },
+        "/models/types": {
+            "get": {
+                "description": "returns all available types for creating a new model",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "models"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/helper.ModelTypes"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "helper.EntityDataPoint": {
+            "type": "object",
+            "properties": {
+                "entities": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/helper.EntityInformation"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "sentence": {
+                    "type": "string"
+                }
+            }
+        },
+        "helper.EntityDataPoints": {
+            "type": "object",
+            "properties": {
+                "dataPoints": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/helper.EntityDataPoint"
+                    }
+                }
+            }
+        },
+        "helper.EntityInformation": {
+            "type": "object",
+            "properties": {
+                "end": {
+                    "type": "integer"
+                },
+                "start": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "helper.IdBody": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "helper.ModelNames": {
+            "type": "object",
+            "properties": {
+                "modelNames": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "helper.ModelType": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "helper.ModelTypes": {
+            "type": "object",
+            "properties": {
+                "modelTypes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/helper.ModelType"
+                    }
+                }
+            }
+        },
+        "helper.NewModel": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
                 }
             }
         }
