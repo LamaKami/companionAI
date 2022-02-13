@@ -10,6 +10,7 @@ COPY dockerManager ./dockerManager
 COPY docs ./docs
 COPY helper ./helper
 COPY utils ./utils
+COPY groups ./groups
 COPY *.go ./
 
 RUN go build -o /companionAI
