@@ -237,7 +237,7 @@ func RemoveLabels(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {string} message
-// @Router /model/{model-id} [delete]
+// @Router /model/{modelId} [delete]
 func RemoveModel(c *gin.Context) {
 	_ = c.Query("version")
 	modelId := c.Param("modelId")
@@ -269,6 +269,33 @@ func EndContainer(c *gin.Context) {
 	delete(containerTracker, containerId)
 
 	c.JSON(http.StatusOK, "Successfully stopped container!")
+}
+
+// ModelInformation godoc
+// @Tags model
+// @Description gets all necessary information for a model id
+// @Param        modelId   path      string  true  "unique id for models"
+// @Accept json
+// @Produce json
+// @Success 200 {object} helper.ModelInformation
+// @Router /model/{modelId} [get]
+func ModelInformation(c *gin.Context) {
+	modelId := c.Param("modelId")
+	var modelInfo helper.ModelInformation
+
+	workingDir, err := os.Getwd()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = utils.Load(workingDir+"/mnt/models/"+modelId+"/config.json", &modelInfo)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, modelInfo)
 }
 
 func handleRequest(c *gin.Context, requestMethod string, url string, payload io.Reader) {

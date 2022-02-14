@@ -26,6 +26,12 @@ type NewModel struct {
 	Type string
 }
 
+type ModelInformation struct {
+	Type          string   `json:"model-type"`
+	NewestVersion string   `json:"newest-version"`
+	Labels        []string `json:"labels"`
+}
+
 type EntityDataPoints struct {
 	EntityDataPoints []EntityDataPoint `json:"dataPoints"`
 }

@@ -29,6 +29,7 @@ func main() {
 			modelGroup.GET("/load/:containerId", groups.LoadModel)
 			modelGroup.POST("/create", groups.CreateNewModel)
 			modelGroup.DELETE("/:modelId", groups.RemoveModel)
+			modelGroup.GET("/:modelId", groups.ModelInformation)
 			modelGroup.POST("/:modelId/:modelVersion/start", groups.StartContainer)
 			modelGroup.PUT("/:containerId/stop", groups.EndContainer)
 			modelGroup.GET("/:modelId/labels", groups.GetLabels)

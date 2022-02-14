@@ -34,6 +34,17 @@ definitions:
           type: string
         type: array
     type: object
+  helper.ModelInformation:
+    properties:
+      labels:
+        items:
+          type: string
+        type: array
+      model-type:
+        type: string
+      newest-version:
+        type: string
+    type: object
   helper.ModelNames:
     properties:
       modelNames:
@@ -69,31 +80,6 @@ paths:
     delete:
       consumes:
       - application/json
-      description: adds multiple data points to the trainings-data
-      parameters:
-      - description: unique id for models
-        in: path
-        name: modelId
-        required: true
-        type: string
-      - description: id can be ignored
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/helper.EntityDataPoints'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      tags:
-      - data
-    post:
-      consumes:
-      - application/json
       description: removes multiple data points from the trainings-data
       parameters:
       - description: unique id for models
@@ -116,7 +102,32 @@ paths:
             type: string
       tags:
       - data
-  /model/{model-id}:
+    get:
+      consumes:
+      - application/json
+      description: adds multiple data points to the trainings-data
+      parameters:
+      - description: unique id for models
+        in: path
+        name: modelId
+        required: true
+        type: string
+      - description: id can be ignored
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/helper.EntityDataPoints'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - data
+  /model/{modelId}:
     delete:
       consumes:
       - application/json
@@ -134,6 +145,25 @@ paths:
           description: OK
           schema:
             type: string
+      tags:
+      - model
+    get:
+      consumes:
+      - application/json
+      description: gets all necessary information for a model id
+      parameters:
+      - description: unique id for models
+        in: path
+        name: modelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.ModelInformation'
       tags:
       - model
   /model/create:

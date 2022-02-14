@@ -6,45 +6,7 @@
     "basePath": "/api/v1",
     "paths": {
         "/data/{model-id}": {
-            "post": {
-                "description": "removes multiple data points from the trainings-data",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "data"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "unique id for models",
-                        "name": "modelId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "datapoints which should be removed",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/helper.IdBody"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
-            "delete": {
+            "get": {
                 "description": "adds multiple data points to the trainings-data",
                 "consumes": [
                     "application/json"
@@ -70,6 +32,44 @@
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/helper.EntityDataPoints"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "removes multiple data points from the trainings-data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "data"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "unique id for models",
+                        "name": "modelId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "datapoints which should be removed",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/helper.IdBody"
                         }
                     }
                 ],
@@ -154,7 +154,36 @@
                 }
             }
         },
-        "/model/{model-id}": {
+        "/model/{modelId}": {
+            "get": {
+                "description": "gets all necessary information for a model id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "model"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "unique id for models",
+                        "name": "modelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/helper.ModelInformation"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "deletes a model and the trainings-data from the local file system",
                 "consumes": [
@@ -281,6 +310,23 @@
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "helper.ModelInformation": {
+            "type": "object",
+            "properties": {
+                "labels": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "model-type": {
+                    "type": "string"
+                },
+                "newest-version": {
+                    "type": "string"
                 }
             }
         },
