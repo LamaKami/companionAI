@@ -4,10 +4,11 @@ import (
 	"companionAI/dockerManager"
 	"companionAI/helper"
 	"companionAI/utils"
-	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
 	"os"
+
+	"github.com/gin-gonic/gin"
 )
 
 // GetModels godoc
@@ -65,7 +66,7 @@ func StopAllContainer(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 	}
-	containerTracker = make(map[string]dockerManager.ContainerInformation)
+	helper.ResetContainerTracker()
 	c.JSON(http.StatusOK, "Stopped all containers")
 }
 
