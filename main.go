@@ -48,9 +48,9 @@ func main() {
 
 		dataGroup := v1.Group("/data")
 		{
-			dataGroup.POST("/:modelId", groups.AddDataPoints)
-			dataGroup.GET("/:modelId", groups.GetDataPoints)
-			dataGroup.DELETE("/:modelId", groups.DeleteDataPoints)
+			dataGroup.POST("/entity_extraction/:modelId", groups.AddDataPoints)
+			dataGroup.GET("/entity_extraction/:modelId", groups.GetDataPoints)
+			dataGroup.DELETE("/entity_extraction/:modelId", groups.DeleteDataPoints)
 		}
 	}
 
