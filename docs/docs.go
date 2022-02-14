@@ -23,8 +23,37 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/data/{model-id}": {
+        "/data/entity_extraction/{modelId}": {
             "get": {
+                "description": "gets all trainings-data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "data"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "unique id for models",
+                        "name": "modelId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/helper.EntityDataPoints"
+                        }
+                    }
+                }
+            },
+            "post": {
                 "description": "adds multiple data points to the trainings-data",
                 "consumes": [
                     "application/json"
@@ -172,6 +201,37 @@ var doc = `{
                 }
             }
         },
+        "/model/{containerId}/stop": {
+            "put": {
+                "description": "stops a single container with given id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "model"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "unique id for a container",
+                        "name": "containerId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/model/{modelId}": {
             "get": {
                 "description": "gets all necessary information for a model id",
@@ -232,6 +292,46 @@ var doc = `{
                 }
             }
         },
+        "/model/{modelId}/labels": {
+            "delete": {
+                "description": "deletes labels from the config file",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "model"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "unique id for models",
+                        "name": "modelId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "body data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/helper.LabelBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/models": {
             "get": {
                 "description": "creates a new folder with the necessary template files",
@@ -249,6 +349,50 @@ var doc = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/helper.ModelNames"
+                        }
+                    }
+                }
+            }
+        },
+        "/models/runningContainers": {
+            "get": {
+                "description": "stops all running containers which were started in this run",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "models"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dockerManager.ContainerInformation"
+                        }
+                    }
+                }
+            }
+        },
+        "/models/stopAll": {
+            "put": {
+                "description": "stops all running containers which were started in this run",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "models"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -278,6 +422,23 @@ var doc = `{
         }
     },
     "definitions": {
+        "dockerManager.ContainerInformation": {
+            "type": "object",
+            "properties": {
+                "ip": {
+                    "type": "string"
+                },
+                "modelId": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
         "helper.EntityDataPoint": {
             "type": "object",
             "properties": {
@@ -324,6 +485,17 @@ var doc = `{
             "type": "object",
             "properties": {
                 "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "helper.LabelBody": {
+            "type": "object",
+            "properties": {
+                "labels": {
                     "type": "array",
                     "items": {
                         "type": "string"

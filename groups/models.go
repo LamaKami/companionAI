@@ -52,6 +52,13 @@ func GetModelTypes(c *gin.Context) {
 	c.JSON(http.StatusOK, types)
 }
 
+// StopAllContainer godoc
+// @Tags models
+// @Description stops all running containers which were started in this run
+// @Accept json
+// @Produce json
+// @Success 200 {string} message
+// @Router /models/stopAll [put]
 func StopAllContainer(c *gin.Context) {
 	containerTracker := helper.GetContainerTracker()
 	err := dockerManager.StopAll(containerTracker)
@@ -62,6 +69,13 @@ func StopAllContainer(c *gin.Context) {
 	c.JSON(http.StatusOK, "Stopped all containers")
 }
 
+// GetRunningContainers godoc
+// @Tags models
+// @Description stops all running containers which were started in this run
+// @Accept json
+// @Produce json
+// @Success 200 {object} dockerManager.ContainerInformation
+// @Router /models/runningContainers [get]
 func GetRunningContainers(c *gin.Context) {
 	containerTracker := helper.GetContainerTracker()
 	c.JSON(http.StatusOK, containerTracker)

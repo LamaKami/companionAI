@@ -1,5 +1,16 @@
 basePath: /api/v1
 definitions:
+  dockerManager.ContainerInformation:
+    properties:
+      ip:
+        type: string
+      modelId:
+        type: string
+      port:
+        type: string
+      version:
+        type: string
+    type: object
   helper.EntityDataPoint:
     properties:
       entities:
@@ -30,6 +41,13 @@ definitions:
   helper.IdBody:
     properties:
       ids:
+        items:
+          type: string
+        type: array
+    type: object
+  helper.LabelBody:
+    properties:
+      labels:
         items:
           type: string
         type: array
@@ -76,7 +94,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /data/{model-id}:
+  /data/entity_extraction/{modelId}:
     delete:
       consumes:
       - application/json
@@ -105,6 +123,25 @@ paths:
     get:
       consumes:
       - application/json
+      description: gets all trainings-data
+      parameters:
+      - description: unique id for models
+        in: path
+        name: modelId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.EntityDataPoints'
+      tags:
+      - data
+    post:
+      consumes:
+      - application/json
       description: adds multiple data points to the trainings-data
       parameters:
       - description: unique id for models
@@ -127,6 +164,26 @@ paths:
             type: string
       tags:
       - data
+  /model/{containerId}/stop:
+    put:
+      consumes:
+      - application/json
+      description: stops a single container with given id
+      parameters:
+      - description: unique id for a container
+        in: path
+        name: containerId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - model
   /model/{modelId}:
     delete:
       consumes:
@@ -164,6 +221,32 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/helper.ModelInformation'
+      tags:
+      - model
+  /model/{modelId}/labels:
+    delete:
+      consumes:
+      - application/json
+      description: deletes labels from the config file
+      parameters:
+      - description: unique id for models
+        in: path
+        name: modelId
+        required: true
+        type: string
+      - description: body data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/helper.LabelBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
       tags:
       - model
   /model/create:
@@ -224,6 +307,34 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/helper.ModelNames'
+      tags:
+      - models
+  /models/runningContainers:
+    get:
+      consumes:
+      - application/json
+      description: stops all running containers which were started in this run
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dockerManager.ContainerInformation'
+      tags:
+      - models
+  /models/stopAll:
+    put:
+      consumes:
+      - application/json
+      description: stops all running containers which were started in this run
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
       tags:
       - models
   /models/types:

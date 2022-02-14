@@ -19,7 +19,7 @@ import (
 // @Accept json
 // @Produce json
 // @Success 200 {string} message
-// @Router /data/entity_extraction/{modelId} [get]
+// @Router /data/entity_extraction/{modelId} [post]
 func AddDataPoints(c *gin.Context) {
 	modelId := c.Param("modelId")
 
@@ -105,6 +105,14 @@ func DeleteDataPoints(c *gin.Context) {
 
 }
 
+// GetDataPoints godoc
+// @Tags data
+// @Description gets all trainings-data
+// @Param        modelId   path      string  true  "unique id for models"
+// @Accept json
+// @Produce json
+// @Success 200 {object} helper.EntityDataPoints
+// @Router /data/entity_extraction/{modelId} [get]
 func GetDataPoints(c *gin.Context) {
 	modelId := c.Param("modelId")
 

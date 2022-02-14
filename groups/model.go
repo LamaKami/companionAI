@@ -205,6 +205,15 @@ func AddLabels(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"labels": newLabels})
 }
 
+// RemoveLabels godoc
+// @Tags model
+// @Description deletes labels from the config file
+// @Param        modelId   path      string  true  "unique id for models"
+// @Param data body helper.LabelBody true "body data"
+// @Accept json
+// @Produce json
+// @Success 200 {string} message
+// @Router /model/{modelId}/labels [delete]
 func RemoveLabels(c *gin.Context) {
 	modelId := c.Param("modelId")
 	dir, err := os.Getwd()
@@ -221,13 +230,13 @@ func RemoveLabels(c *gin.Context) {
 		return
 	}
 
-	newLabels, err := utils.RemoveLabels(dir, modelId, labels.Labels)
+	_, err = utils.RemoveLabels(dir, modelId, labels.Labels)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"labels": newLabels})
+	c.JSON(http.StatusOK, "labels were updated")
 }
 
 // RemoveModel godoc
@@ -257,6 +266,14 @@ func RemoveModel(c *gin.Context) {
 	c.JSON(http.StatusOK, "model was removed")
 }
 
+// EndContainer godoc
+// @Tags model
+// @Description stops a single container with given id
+// @Param        containerId   path      string  true  "unique id for a container"
+// @Accept json
+// @Produce json
+// @Success 200 {string} message
+// @Router /model/{containerId}/stop [put]
 func EndContainer(c *gin.Context) {
 	containerId := c.Param("containerId")
 	err := dockerManager.Stop(containerId)
