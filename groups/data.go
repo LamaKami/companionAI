@@ -19,7 +19,7 @@ import (
 // @Accept json
 // @Produce json
 // @Success 200 {string} message
-// @Router /data/{modelId} [get]
+// @Router /data/entity_extraction/{modelId} [get]
 func AddDataPoints(c *gin.Context) {
 	modelId := c.Param("modelId")
 
@@ -68,7 +68,7 @@ func AddDataPoints(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {string} message
-// @Router /data/{modelId} [delete]
+// @Router /data/entity_extraction/{modelId} [delete]
 func DeleteDataPoints(c *gin.Context) {
 	modelId := c.Param("modelId")
 	var ids helper.IdBody
