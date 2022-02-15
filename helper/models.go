@@ -47,3 +47,9 @@ type EntityInformation struct {
 	EndingPosition   int    `json:"end"`
 	EntityType       string `json:"type"`
 }
+
+type ContainerInfo struct {
+	Id   string `json:"id"`
+	Ip   string `json:"ip"`
+	Port string `json:"port"`
+}

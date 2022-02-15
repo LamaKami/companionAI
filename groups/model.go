@@ -16,6 +16,7 @@ import (
 
 // CreateNewModel godoc
 // @Tags model
+// @Summary create new model
 // @Description creates a new folder with the necessary template files
 // @Param data body helper.NewModel true "body data"
 // @Accept json
@@ -74,6 +75,7 @@ func CreateNewModel(c *gin.Context) {
 
 // PredictData godoc
 // @Tags model
+// @Summary predict datapoint
 // @Description generates prediction for the datapoint
 // @Param        modelId   path      string  true  "unique id for models"
 // @Param        modelVersion   path      string  true  "use version v1 if no other versions exist"
@@ -96,6 +98,15 @@ func PredictData(c *gin.Context) {
 	handleRequest(c, "POST", url, c.Request.Body)
 }
 
+// TrainModel godoc
+// @Tags model
+// @Summary train model
+// @Description trains the machine learning model in the container
+// @Param        containerId   path      string  true  "unique id for the container"
+// @Accept json
+// @Produce json
+// @Success 200 {string} message
+// @Router /model/train/{containerId} [put]
 func TrainModel(c *gin.Context) {
 	// TODO handling a training response -> continuous data stream
 	containerId := c.Param("containerId")
@@ -111,6 +122,15 @@ func TrainModel(c *gin.Context) {
 	handleRequest(c, "GET", url, c.Request.Body)
 }
 
+// LoadModel godoc
+// @Tags model
+// @Summary load model
+// @Description loads the machine learning model in the container
+// @Param        containerId   path      string  true  "unique id for the container"
+// @Accept json
+// @Produce json
+// @Success 200 {string} message
+// @Router /model/load/{containerId} [put]
 func LoadModel(c *gin.Context) {
 	//TODO create function for this:
 	containerId := c.Param("containerId")
@@ -126,6 +146,16 @@ func LoadModel(c *gin.Context) {
 	handleRequest(c, "GET", url, c.Request.Body)
 }
 
+// StartContainer godoc
+// @Tags model
+// @Summary start container with model
+// @Description starts a container for a given model
+// @Param        modelId   path      string  true  "unique id for models"
+// @Param        modelVersion   path      string  true  "version for the machine learning model"
+// @Accept json
+// @Produce json
+// @Success 200 {object} helper.ContainerInfo
+// @Router /model/{modelId}/{modelVersion}/start [post]
 func StartContainer(c *gin.Context) {
 	version := c.Param("modelVersion")
 	modelId := c.Param("modelId")
@@ -164,9 +194,18 @@ func StartContainer(c *gin.Context) {
 
 	containerTracker[id] = dockerManager.ContainerInformation{Port: port, ModelId: modelId, Version: version, Ip: ip}
 
-	c.JSON(http.StatusOK, gin.H{"port": port, "id": id, "ip": ip})
+	c.JSON(http.StatusOK, helper.ContainerInfo{Id: id, Ip: ip, Port: port})
 }
 
+// GetLabels godoc
+// @Tags model
+// @Summary get labels
+// @Description gets labels from the config file
+// @Param        modelId   path      string  true  "unique id for models"
+// @Accept json
+// @Produce json
+// @Success 200 {object} helper.LabelBody
+// @Router /model/{modelId}/labels [get]
 func GetLabels(c *gin.Context) {
 	modelId := c.Param("modelId")
 	dir, err := os.Getwd()
@@ -180,6 +219,16 @@ func GetLabels(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"labels": config.Labels})
 }
 
+// AddLabels godoc
+// @Tags model
+// @Summary add labels
+// @Description add labels to the config file
+// @Param        modelId   path      string  true  "unique id for models"
+// @Param data body helper.LabelBody true "body data"
+// @Accept json
+// @Produce json
+// @Success 200 {string} message
+// @Router /model/{modelId}/labels [post]
 func AddLabels(c *gin.Context) {
 	modelId := c.Param("modelId")
 	dir, err := os.Getwd()
@@ -207,6 +256,7 @@ func AddLabels(c *gin.Context) {
 
 // RemoveLabels godoc
 // @Tags model
+// @Summary delete labels
 // @Description deletes labels from the config file
 // @Param        modelId   path      string  true  "unique id for models"
 // @Param data body helper.LabelBody true "body data"
@@ -241,6 +291,7 @@ func RemoveLabels(c *gin.Context) {
 
 // RemoveModel godoc
 // @Tags model
+// @Summary remove model
 // @Description deletes a model and the trainings-data from the local file system
 // @Param        modelId   path      string  true  "unique id for models"
 // @Accept json
@@ -268,6 +319,7 @@ func RemoveModel(c *gin.Context) {
 
 // EndContainer godoc
 // @Tags model
+// @Summary stop container
 // @Description stops a single container with given id
 // @Param        containerId   path      string  true  "unique id for a container"
 // @Accept json
@@ -290,6 +342,7 @@ func EndContainer(c *gin.Context) {
 
 // ModelInformation godoc
 // @Tags model
+// @Summary get model information
 // @Description gets all necessary information for a model id
 // @Param        modelId   path      string  true  "unique id for models"
 // @Accept json

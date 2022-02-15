@@ -14,6 +14,7 @@ import (
 // AddDataPoints godoc
 // @Tags data
 // @Description adds multiple data points to the trainings-data
+// @Summary adds trainings data
 // @Param        modelId   path      string  true  "unique id for models"
 // @Param data body helper.EntityDataPoints true "id can be ignored"
 // @Accept json
@@ -62,6 +63,7 @@ func AddDataPoints(c *gin.Context) {
 
 // DeleteDataPoints godoc
 // @Tags data
+// @Summary delete trainings data
 // @Description removes multiple data points from the trainings-data
 // @Param        modelId   path      string  true  "unique id for models"
 // @Param data body helper.IdBody true "datapoints which should be removed"
@@ -107,6 +109,7 @@ func DeleteDataPoints(c *gin.Context) {
 
 // GetDataPoints godoc
 // @Tags data
+// @Summary gets trainings data
 // @Description gets all trainings-data
 // @Param        modelId   path      string  true  "unique id for models"
 // @Accept json

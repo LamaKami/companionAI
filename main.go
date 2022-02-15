@@ -25,8 +25,8 @@ func main() {
 		modelGroup := v1.Group("/model")
 		{
 			modelGroup.POST("/predict/:containerId", groups.PredictData)
-			modelGroup.GET("/train/:containerId", groups.TrainModel)
-			modelGroup.GET("/load/:containerId", groups.LoadModel)
+			modelGroup.PUT("/train/:containerId", groups.TrainModel)
+			modelGroup.PUT("/load/:containerId", groups.LoadModel)
 			modelGroup.POST("/create", groups.CreateNewModel)
 			modelGroup.DELETE("/:modelId", groups.RemoveModel)
 			modelGroup.GET("/:modelId", groups.ModelInformation)

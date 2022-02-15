@@ -13,6 +13,7 @@ import (
 
 // GetModels godoc
 // @Tags models
+// @Summary get models
 // @Description creates a new folder with the necessary template files
 // @Accept json
 // @Produce json
@@ -39,6 +40,7 @@ func GetModels(c *gin.Context) {
 
 // GetModelTypes godoc
 // @Tags models
+// @Summary get model types
 // @Description returns all available types for creating a new model
 // @Accept json
 // @Produce json
@@ -55,6 +57,7 @@ func GetModelTypes(c *gin.Context) {
 
 // StopAllContainer godoc
 // @Tags models
+// @Summary stop all containers
 // @Description stops all running containers which were started in this run
 // @Accept json
 // @Produce json
@@ -72,6 +75,7 @@ func StopAllContainer(c *gin.Context) {
 
 // GetRunningContainers godoc
 // @Tags models
+// @Summary gets all running containers
 // @Description stops all running containers which were started in this run
 // @Accept json
 // @Produce json
