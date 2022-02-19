@@ -16,6 +16,10 @@ type LabelBody struct {
 	Labels []string `json:"labels"`
 }
 
+type SentenceBody struct {
+	Sentence string `json:"sentence"`
+}
+
 type ModelType struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -45,7 +49,7 @@ type EntityDataPoint struct {
 type EntityInformation struct {
 	StartingPosition int    `json:"start"`
 	EndingPosition   int    `json:"end"`
-	EntityType       string `json:"type"`
+	EntityLabel      string `json:"label"`
 }
 
 type ContainerInfo struct {

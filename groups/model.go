@@ -6,12 +6,13 @@ import (
 	"companionAI/utils"
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	cp "github.com/otiai10/copy"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
+
+	"github.com/gin-gonic/gin"
+	cp "github.com/otiai10/copy"
 )
 
 // CreateNewModel godoc
@@ -79,6 +80,7 @@ func CreateNewModel(c *gin.Context) {
 // @Description generates prediction for the datapoint
 // @Param        modelId   path      string  true  "unique id for models"
 // @Param        modelVersion   path      string  true  "use version v1 if no other versions exist"
+// @Param data body helper.SentenceBody true "prediction sentence"
 // @Accept json
 // @Produce json
 // @Success 200 {string} prediction

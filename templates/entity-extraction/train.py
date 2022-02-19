@@ -18,7 +18,7 @@ def load_data(path):
     data = []
 
     for element in trainings_data["dataPoints"]:
-        data.append((element["sentence"],{'entities': [(x["start"], x["end"], x["type"]) for x in element["entities"]]}))
+        data.append((element["sentence"],{'entities': [(x["start"], x["end"], x["label"]) for x in element["entities"]]}))
     return data
 
 
