@@ -6,13 +6,12 @@ import (
 	"companionAI/utils"
 	"encoding/json"
 	"fmt"
+	"github.com/gin-gonic/gin"
+	cp "github.com/otiai10/copy"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
-
-	"github.com/gin-gonic/gin"
-	cp "github.com/otiai10/copy"
 )
 
 // CreateNewModel godoc
@@ -84,7 +83,7 @@ func CreateNewModel(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {string} prediction
-// @Router /model/predict/{modelId}/{modelVersion} [post]
+// @Router /model/predict/{containerId} [post]
 func PredictData(c *gin.Context) {
 	// with the model id we can target different functions therefore each model type must be unique at the start
 	containerId := c.Param("containerId")
@@ -394,4 +393,55 @@ func handleRequest(c *gin.Context, requestMethod string, url string, payload io.
 		return
 	}
 	c.JSON(http.StatusOK, string(body))
+}
+
+func Stream2(c *gin.Context) {
+	containerId := c.Param("containerId")
+	containerTracker := helper.GetContainerTracker()
+	containerInformation, _ := containerTracker[containerId]
+	url := fmt.Sprintf("http://%s:5000/train", containerInformation.Ip)
+
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", url, c.Request.Body)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, fmt.Errorf("error while creating the request %w", err))
+		return
+	}
+	req.Header.Add("Content-Type", "application/json")
+
+	res, err := client.Do(req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, fmt.Errorf("error while sending the request %w", err))
+		return
+	}
+	defer res.Body.Close()
+	r := io.Reader(res.Body)
+
+	chanStream := make(chan string, 10)
+	go func() {
+		defer close(chanStream)
+		for {
+			b := make([]byte, 2048)
+			n, err := r.Read(b)
+			if err != nil {
+				chanStream <- "end"
+				return
+			} else {
+				fmt.Println(n)
+				chanStream <- string(b[:n])
+			}
+		}
+	}()
+
+	c.Stream(func(w io.Writer) bool {
+		// Stream message to client from message channel
+		if msg, ok := <-chanStream; ok {
+			c.SSEvent("message", msg)
+			return true
+		}
+		return false
+	})
+
+	c.JSON(http.StatusOK, "Finished")
 }
