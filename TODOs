@@ -1,3 +1,4 @@
 * Call to close all container with image names
 * remove python container after close
 * document functions
+* improve return from event stream
