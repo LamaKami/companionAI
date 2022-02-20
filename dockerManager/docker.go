@@ -1,7 +1,7 @@
 package dockerManager
 
 import (
-	"fmt"
+	"companionAI/helper"
 	"github.com/docker/distribution/context"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -9,20 +9,12 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/docker/go-connections/nat"
-	"io"
-	"os"
+	"github.com/gin-gonic/gin"
 	"time"
 )
 
-type ContainerInformation struct {
-	Port    string
-	ModelId string
-	Version string
-	Ip      string
-}
-
 // Build takes a buildContextPath which is the path where the Dockerfile lies. The tags are for the name, version, etc.
-func Build(buildContextPath string, tags []string) error {
+func Build(c *gin.Context, buildContextPath string, tags []string) error {
 
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
@@ -43,10 +35,7 @@ func Build(buildContextPath string, tags []string) error {
 	}
 
 	defer resp.Body.Close()
-	_, err = io.Copy(os.Stdout, resp.Body)
-	if err != nil {
-		return err
-	}
+	helper.WriteImageBuildResponseToStream(c, resp)
 	return nil
 }
 
@@ -88,12 +77,10 @@ func Start(imageName string, sourceMountPath string, targetMountPath string, con
 	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
 		return "", err
 	}
-
-	fmt.Println(resp.ID)
 	return resp.ID, nil
 }
 
-func StopAll(containerTracker map[string]ContainerInformation) error {
+func StopAll(containerTracker map[string]helper.ContainerInformation) error {
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
@@ -101,16 +88,13 @@ func StopAll(containerTracker map[string]ContainerInformation) error {
 	}
 
 	for id := range containerTracker {
-		fmt.Print("Stopping container ", id, "... ")
 		var d time.Duration = -1
 		err = cli.ContainerStop(ctx, id, &d)
 		if err != nil {
 			return err
 		}
-		fmt.Println("Success")
 	}
 
-	//TODO remove container id from global list
 	return nil
 }
 
@@ -121,15 +105,12 @@ func Stop(containerId string) error {
 		return err
 	}
 
-	fmt.Print("Stopping container ", containerId, "... ")
 	var d time.Duration = -1
 	err = cli.ContainerStop(ctx, containerId, &d)
 	if err != nil {
 		return err
 	}
-	fmt.Println("Success")
 
-	//TODO remove container id from global list
 	return nil
 }
 

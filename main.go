@@ -52,11 +52,6 @@ func main() {
 			dataGroup.GET("/entity_extraction/:modelId", groups.GetDataPoints)
 			dataGroup.DELETE("/entity_extraction/:modelId", groups.DeleteDataPoints)
 		}
-
-		streamGroup := v1.Group("/stream")
-		{
-			streamGroup.POST("/:containerId", groups.Stream2)
-		}
 	}
 
 	server.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

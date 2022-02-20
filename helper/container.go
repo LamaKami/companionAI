@@ -1,7 +1,6 @@
 package helper
 
 import (
-	"companionAI/dockerManager"
 	"fmt"
 	"log"
 	"math/rand"
@@ -9,8 +8,9 @@ import (
 	"time"
 )
 
-func ContainerAlreadyRunning(modelId string, version string, containerTracker map[string]dockerManager.ContainerInformation) bool {
-	for _, value := range containerTracker {
+func ContainerAlreadyRunning(modelId string, version string) bool {
+
+	for _, value := range GetContainerTracker() {
 		if value.Version == version && value.ModelId == modelId {
 			return true
 		}
@@ -18,7 +18,8 @@ func ContainerAlreadyRunning(modelId string, version string, containerTracker ma
 	return false
 }
 
-func GetNextPort(containerTracker map[string]dockerManager.ContainerInformation) string {
+func GetNextPort() string {
+	containerTracker := GetContainerTracker()
 	log.Println("Searching Port")
 	rand.Seed(time.Now().UnixNano())
 	min := 49152

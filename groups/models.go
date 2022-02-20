@@ -79,7 +79,7 @@ func StopAllContainer(c *gin.Context) {
 // @Description stops all running containers which were started in this run
 // @Accept json
 // @Produce json
-// @Success 200 {object} dockerManager.ContainerInformation
+// @Success 200 {object} helper.ContainerInformation
 // @Router /models/runningContainers [get]
 func GetRunningContainers(c *gin.Context) {
 	containerTracker := helper.GetContainerTracker()

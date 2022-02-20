@@ -1,2 +1,3 @@
 * Call to close all container with image names
-* Adding "swag init" in docker
+* remove python container after close
+* document functions

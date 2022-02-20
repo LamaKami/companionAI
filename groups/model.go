@@ -120,7 +120,7 @@ func TrainModel(c *gin.Context) {
 
 	url := fmt.Sprintf("http://%s:5000/train", containerInformation.Ip)
 
-	handleRequest(c, "GET", url, c.Request.Body)
+	handleEventRequest(c, "GET", url, c.Request.Body)
 }
 
 // LoadModel godoc
@@ -162,7 +162,7 @@ func StartContainer(c *gin.Context) {
 	modelId := c.Param("modelId")
 	containerTracker := helper.GetContainerTracker()
 
-	if helper.ContainerAlreadyRunning(modelId, version, containerTracker) {
+	if helper.ContainerAlreadyRunning(modelId, version) {
 		c.JSON(http.StatusOK, "Container with this modelId and version is already running.")
 		return
 	}
@@ -172,13 +172,13 @@ func StartContainer(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	err = dockerManager.Build(dir+"/mnt/models/"+modelId, []string{modelId})
+	err = dockerManager.Build(c, dir+"/mnt/models/"+modelId, []string{modelId})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	port := helper.GetNextPort(containerTracker)
+	port := helper.GetNextPort()
 
 	id, err := dockerManager.Start(modelId, os.Args[1]+"/models/"+modelId, "/mnt", port)
 
@@ -193,7 +193,7 @@ func StartContainer(c *gin.Context) {
 		return
 	}
 
-	containerTracker[id] = dockerManager.ContainerInformation{Port: port, ModelId: modelId, Version: version, Ip: ip}
+	containerTracker[id] = helper.ContainerInformation{Port: port, ModelId: modelId, Version: version, Ip: ip}
 
 	c.JSON(http.StatusOK, helper.ContainerInfo{Id: id, Ip: ip, Port: port})
 }
@@ -395,14 +395,9 @@ func handleRequest(c *gin.Context, requestMethod string, url string, payload io.
 	c.JSON(http.StatusOK, string(body))
 }
 
-func Stream2(c *gin.Context) {
-	containerId := c.Param("containerId")
-	containerTracker := helper.GetContainerTracker()
-	containerInformation, _ := containerTracker[containerId]
-	url := fmt.Sprintf("http://%s:5000/train", containerInformation.Ip)
-
+func handleEventRequest(c *gin.Context, requestMethod string, url string, payload io.Reader) {
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", url, c.Request.Body)
+	req, err := http.NewRequest(requestMethod, url, payload)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, fmt.Errorf("error while creating the request %w", err))
@@ -416,32 +411,8 @@ func Stream2(c *gin.Context) {
 		return
 	}
 	defer res.Body.Close()
-	r := io.Reader(res.Body)
 
-	chanStream := make(chan string, 10)
-	go func() {
-		defer close(chanStream)
-		for {
-			b := make([]byte, 2048)
-			n, err := r.Read(b)
-			if err != nil {
-				chanStream <- "end"
-				return
-			} else {
-				fmt.Println(n)
-				chanStream <- string(b[:n])
-			}
-		}
-	}()
-
-	c.Stream(func(w io.Writer) bool {
-		// Stream message to client from message channel
-		if msg, ok := <-chanStream; ok {
-			c.SSEvent("message", msg)
-			return true
-		}
-		return false
-	})
+	helper.WriteHttpResponseToStream(c, res)
 
 	c.JSON(http.StatusOK, "Finished")
 }
