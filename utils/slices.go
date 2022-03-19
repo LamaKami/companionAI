@@ -4,7 +4,7 @@ import (
 	"companionAI/helper"
 )
 
-func contains(list []string, element string) bool {
+func contains[V int64 | float64 | string](list []V, element V) bool {
 	for i := range list {
 		if list[i] == element {
 			return true
